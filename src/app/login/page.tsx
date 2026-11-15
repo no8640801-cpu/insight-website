@@ -132,6 +132,14 @@ export default function LoginPage() {
                 )}
               </button>
             </div>
+                      <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-[#C6A66B] transition hover:text-[#e1c58d]"
+            >
+              Forgot Password?
+            </Link>
+          </div>
           </div>
 
           {error && (

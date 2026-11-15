@@ -7,6 +7,11 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next");
 
+  const allowedNext =
+    next && next.startsWith("/") && !next.startsWith("//")
+      ? next
+      : "/dashboard";
+
   if (code) {
     const supabase = await createClient();
 
@@ -15,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     if (!error) {
       return NextResponse.redirect(
-        new URL(next || "/dashboard", url.origin)
+        new URL(allowedNext, url.origin)
       );
     }
   }
