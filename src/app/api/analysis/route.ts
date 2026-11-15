@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 const BUCKET_NAME = "analysis-files";
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const MAX_FILES = 10;
-const SIGNED_URL_EXPIRY = 60 * 60; // 1 hour
+const SIGNED_URL_EXPIRY = 60 * 60;
 
 const ALLOWED_ANALYSES = [
   "business_analysis",
@@ -35,8 +35,13 @@ export async function POST(request: Request) {
 
   try {
     // 2. Verify n8n configuration
-    const webhookUrl = process.env.N8N_WEBHOOK_URL;
-    const webhookSecret = process.env.N8N_WEBHOOK_SECRET;
+    const webhookUrl = process.env.N8N_WEBHOOK_URL?.trim();
+    const webhookSecret = process.env.N8N_WEBHOOK_SECRET?.trim();
+
+    console.log("INSIGHT Webhook Status:", {
+      hasUrl: Boolean(webhookUrl),
+      hasSecret: Boolean(webhookSecret),
+    });
 
     if (!webhookUrl || !webhookSecret) {
       return NextResponse.json(
@@ -270,15 +275,15 @@ export async function POST(request: Request) {
           "x-insight-secret": webhookSecret,
         },
         body: JSON.stringify({
-  event: "analysis.requested",
-  job_id: job.id,
-  user_id: user.id,
-  user_email: user.email,
-  plan,
-  analysis_types: analysisTypes,
-  instructions,
-  files: filesForN8n,
-}),
+          event: "analysis.requested",
+          job_id: job.id,
+          user_id: user.id,
+          user_email: user.email,
+          plan,
+          analysis_types: analysisTypes,
+          instructions,
+          files: filesForN8n,
+        }),
         cache: "no-store",
         signal: AbortSignal.timeout(15000),
       });

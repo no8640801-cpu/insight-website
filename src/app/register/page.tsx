@@ -52,37 +52,48 @@ export default function RegisterPage() {
       const supabase = createClient();
 
       const { data, error } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
+  email: email.trim(),
+  password,
+  options: {
+    emailRedirectTo: `${window.location.origin}/auth/confirm`,
+    data: {
+      full_name: fullName.trim(),
+      company_name: companyName.trim(),
+    },
+  },
+});
 
-        options: {
-          // Email confirmation redirect
-          emailRedirectTo: `${window.location.origin}/auth/confirm`,
-
-          // Additional user information
-          data: {
-            full_name: fullName.trim(),
-            company_name: companyName.trim(),
-          },
-        },
-      });
-
-      if (error) {
-        setError(error.message);
-        return;
+console.log("SIGN UP RESULT:", {
+  user: data.user
+    ? {
+        id: data.user.id,
+        email: data.user.email,
+        created_at: data.user.created_at,
+        confirmed_at: data.user.confirmed_at,
       }
+    : null,
+  session: !!data.session,
+  error: error?.message ?? null,
+});
 
-      // If email confirmation is disabled
-      // Supabase creates an active session
-      if (data.session) {
-        router.replace("/dashboard");
-        router.refresh();
-      } else {
-        // If email confirmation is enabled
-        setSuccess(
-          "Your account was created successfully! Please check your email and click the confirmation link to activate your account."
-        );
-      }
+if (error) {
+  setError(error.message);
+  return;
+}
+
+if (!data.user) {
+  setError("Supabase did not return a user. Please try again.");
+  return;
+}
+
+if (data.session) {
+  router.replace("/dashboard");
+  router.refresh();
+} else {
+  setSuccess(
+    "Registration request received. Please check your email to confirm your account."
+  );
+}
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
