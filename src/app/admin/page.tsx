@@ -1,5 +1,4 @@
 
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import {
   BarChart3,
@@ -10,6 +9,7 @@ import {
   ArrowUpRight,
   Activity,
   ShieldCheck,
+  MessageSquareQuote,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -17,7 +17,6 @@ import { createClient } from "@/lib/supabase/server";
 export const instant = false;
 
 export default async function AdminDashboardPage() {
-  await connection();
 
   const supabase = await createClient();
 
@@ -45,6 +44,7 @@ export default async function AdminDashboardPage() {
     pendingResult,
     proResult,
     recentAnalysesResult,
+    pendingReviewsResult,
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -69,6 +69,11 @@ export default async function AdminDashboardPage() {
       .select("id, title, analysis_types, status, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
+
+    supabase
+      .from("customer_reviews")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
   ]);
 
   const stats = [
@@ -95,6 +100,12 @@ export default async function AdminDashboardPage() {
       value: proResult.count ?? 0,
       icon: Crown,
       description: "Active Pro customers",
+    },
+    {
+      title: "Pending Reviews",
+      value: pendingReviewsResult.count ?? 0,
+      icon: MessageSquareQuote,
+      description: "Waiting for your approval",
     },
   ];
 
@@ -295,6 +306,20 @@ export default async function AdminDashboardPage() {
   </a>
 </div>
 
+
+            <div className="admin-quick-card">
+              <div className="admin-quick-icon">
+                <MessageSquareQuote size={22} />
+              </div>
+
+              <h3>Reviews Management</h3>
+              <p>
+                Approve or reject customer reviews before they appear publicly.
+              </p>
+              <a href="/admin/reviews" className="admin-quick-link">
+                Manage Reviews →
+              </a>
+            </div>
 
             <div className="admin-quick-card">
               <div className="admin-quick-icon">

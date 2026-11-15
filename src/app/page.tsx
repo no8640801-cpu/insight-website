@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import ApprovedReviews from "./components/approved-reviews";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -12,7 +14,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-
+export const instant = false;
 const analysisTypes = [
   {
     icon: TrendingUp,
@@ -52,6 +54,14 @@ const analysisTypes = [
   },
 ];
 
+const publicReviewAnalysisLabels: Record<string, string> = {
+  business_analysis: "Business Analysis",
+  market_research: "Market Research",
+  competitor_analysis: "Competitor Analysis",
+  customer_sentiment_analysis: "Customer Sentiment Analysis",
+  ai_business_recommendations: "AI Business Recommendations",
+};
+
 const processSteps = [
   {
     number: "01",
@@ -76,6 +86,8 @@ const processSteps = [
 ];
 
 export default function Home() {
+  
+
   return (
     <main>
       {/* Navigation */}
@@ -97,6 +109,7 @@ export default function Home() {
           <Link href="#home">Home</Link>
           <Link href="#services">Services</Link>
           <Link href="#process">How It Works</Link>
+          <Link href="#reviews">Reviews</Link>
         </nav>
 
         <Link href="/login" className="gold-button">
@@ -263,6 +276,20 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      
+      {/* Approved Customer Reviews */}
+<Suspense
+  fallback={
+    <section id="reviews" className="section">
+      <div className="site-container text-center text-[#A8A8A8]">
+        Loading customer reviews...
+      </div>
+    </section>
+  }
+>
+  <ApprovedReviews />
+</Suspense>
 
       {/* Call To Action */}
       <section className="site-container">

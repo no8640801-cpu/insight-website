@@ -1,7 +1,8 @@
-import PlanUpgradeCard from "./PlanUpgradeCard";
 import { connection } from "next/server";
+import PlanUpgradeCard from "./PlanUpgradeCard";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
 import {
   BarChart3,
   FileText,
@@ -15,6 +16,9 @@ import {
   Settings,
   CheckCircle2,
   AlertCircle,
+  XCircle,
+  Eye,
+  MessageSquareQuote,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -27,6 +31,7 @@ const statusLabels: Record<string, string> = {
   processing: "Processing",
   completed: "Completed",
   failed: "Failed",
+  cancelled: "Cancelled",
 };
 
 const analysisLabels: Record<string, string> = {
@@ -45,9 +50,24 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+function getStatusIcon(status: string) {
+  switch (status) {
+    case "completed":
+      return <CheckCircle2 size={14} />;
+
+    case "failed":
+      return <AlertCircle size={14} />;
+
+    case "cancelled":
+      return <XCircle size={14} />;
+
+    default:
+      return <Clock size={14} />;
+  }
+}
+
 export default async function DashboardPage() {
   await connection();
-
   const supabase = await createClient();
 
   const {
@@ -68,7 +88,7 @@ export default async function DashboardPage() {
   const displayName =
     profile?.full_name || user.email?.split("@")[0] || "User";
 
-  // Get the customer's current account plan
+  // Get current account plan
   const { data: planData } = await supabase
     .from("account_plans")
     .select("plan")
@@ -77,7 +97,7 @@ export default async function DashboardPage() {
 
   const currentPlan = planData?.plan || "standard";
 
-  // Check whether the customer already has a pending upgrade request
+  // Check pending upgrade request
   const { data: pendingRequest } = await supabase
     .from("plan_upgrade_requests")
     .select("id")
@@ -86,7 +106,6 @@ export default async function DashboardPage() {
     .maybeSingle();
 
   const hasPendingRequest = Boolean(pendingRequest);
-
 
   // Get all analysis requests belonging to this user
   const { data: analyses, error: analysesError } = await supabase
@@ -97,7 +116,7 @@ export default async function DashboardPage() {
 
   const analysisJobs = analyses || [];
 
-  // Calculate dashboard statistics
+  // Dashboard statistics
   const totalAnalyses = analysisJobs.length;
 
   const completedAnalyses = analysisJobs.filter(
@@ -141,18 +160,38 @@ export default async function DashboardPage() {
           Dashboard
         </Link>
 
-        <Link href="/analysis" className="sidebar-link">
+        {/* Analysis History */}
+        <Link
+          href="/dashboard/analysis"
+          className="sidebar-link"
+        >
           <BarChart3 size={17} />
           My Analyses
         </Link>
 
-        <Link href="/analysis/new" className="sidebar-link">
+        {/* New Analysis */}
+        <Link
+          href="/analysis/new"
+          className="sidebar-link"
+        >
           <Plus size={17} />
           New Analysis
         </Link>
 
+        {/* Customer Reviews */}
+        <Link
+          href="/dashboard/reviews"
+          className="sidebar-link"
+        >
+          <MessageSquareQuote size={17} />
+          Reviews
+        </Link>
+
         <div className="sidebar-bottom">
-          <Link href="/dashboard" className="sidebar-link">
+          <Link
+            href="/dashboard"
+            className="sidebar-link"
+          >
             <Settings size={17} />
             Settings
           </Link>
@@ -176,6 +215,7 @@ export default async function DashboardPage() {
             <div className="dashboard-breadcrumb">
               WORKSPACE / DASHBOARD
             </div>
+
             <h1>Dashboard</h1>
           </div>
 
@@ -216,16 +256,20 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <Link href="/analysis/new" className="gold-button">
+          <Link
+            href="/analysis/new"
+            className="gold-button"
+          >
             <Plus size={17} />
             New Analysis
           </Link>
         </div>
+
         {/* Plan Upgrade */}
-<PlanUpgradeCard
-  currentPlan={currentPlan}
-  hasPendingRequest={hasPendingRequest}
-/>
+        <PlanUpgradeCard
+          currentPlan={currentPlan}
+          hasPendingRequest={hasPendingRequest}
+        />
 
         {/* Statistics */}
         <div className="dashboard-stats">
@@ -264,15 +308,25 @@ export default async function DashboardPage() {
         {pendingAnalyses > 0 && (
           <div className="analysis-pending-notice">
             <Clock size={19} />
+
             <div>
               <strong>
                 {pendingAnalyses} request
                 {pendingAnalyses > 1 ? "s are" : " is"} waiting
                 to be processed.
               </strong>
+
               <p>
                 Your requests have been received successfully.
               </p>
+
+              <Link
+                href="/dashboard/analysis"
+                className="text-link"
+              >
+                Manage Requests
+                <ArrowUpRight size={14} />
+              </Link>
             </div>
           </div>
         )}
@@ -285,15 +339,21 @@ export default async function DashboardPage() {
               <p>Track your business analysis requests.</p>
             </div>
 
-            <Link href="/analysis" className="text-link">
-              View All <ArrowUpRight size={15} />
+            <Link
+              href="/dashboard/analysis"
+              className="text-link"
+            >
+              View All
+              <ArrowUpRight size={15} />
             </Link>
           </div>
 
           {analysesError ? (
             <div className="empty-state">
               <AlertCircle size={28} />
+
               <h3>Unable to Load Analyses</h3>
+
               <p>
                 We could not retrieve your analysis requests.
                 Please refresh the page and try again.
@@ -313,7 +373,10 @@ export default async function DashboardPage() {
                 that match your business needs.
               </p>
 
-              <Link href="/analysis/new" className="gold-button">
+              <Link
+                href="/analysis/new"
+                className="gold-button"
+              >
                 Start Your First Analysis
                 <ArrowUpRight size={16} />
               </Link>
@@ -330,7 +393,18 @@ export default async function DashboardPage() {
                   </div>
 
                   <div className="dashboard-analysis-info">
-                    <strong>{job.title}</strong>
+                    {job.status === "completed" ? (
+                      <Link
+                        href={`/dashboard/analysis/${job.id}`}
+                        className="font-semibold transition hover:text-[#C6A66B]"
+                      >
+                        {job.title || "Business Analysis"}
+                      </Link>
+                    ) : (
+                      <strong>
+                        {job.title || "Business Analysis"}
+                      </strong>
+                    )}
 
                     <p>
                       {(job.analysis_types || [])
@@ -349,16 +423,20 @@ export default async function DashboardPage() {
                   <div
                     className={`analysis-status status-${job.status}`}
                   >
-                    {job.status === "completed" ? (
-                      <CheckCircle2 size={14} />
-                    ) : job.status === "failed" ? (
-                      <AlertCircle size={14} />
-                    ) : (
-                      <Clock size={14} />
-                    )}
+                    {getStatusIcon(job.status)}
 
                     {statusLabels[job.status] || job.status}
                   </div>
+
+                  {job.status === "completed" && (
+                    <Link
+                      href={`/dashboard/analysis/${job.id}`}
+                      className="ml-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#C6A66B] transition hover:text-[#e1c58d]"
+                    >
+                      <Eye size={15} />
+                      View Report
+                    </Link>
+                  )}
                 </div>
               ))}
             </div>
@@ -385,7 +463,7 @@ export default async function DashboardPage() {
             </Link>
 
             <Link
-              href="/analysis"
+              href="/dashboard/analysis"
               className="quick-action-card"
             >
               <div className="card-icon">
@@ -394,7 +472,7 @@ export default async function DashboardPage() {
 
               <div>
                 <h4>Analysis History</h4>
-                <p>Explore your previous reports.</p>
+                <p>Explore your previous analysis requests.</p>
               </div>
             </Link>
           </div>
