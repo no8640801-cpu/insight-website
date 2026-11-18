@@ -40,6 +40,11 @@ const analysisLabels: Record<string, string> = {
   competitor_analysis: "Competitor Analysis",
   customer_sentiment_analysis: "Customer Sentiment Analysis",
   ai_business_recommendations: "AI Business Recommendations",
+  financial_statements: "Financial Statements",
+  human_analyst: "Human Analyst",
+  report_review: "Report Review",
+  consultation: "Consultation",
+  custom_reports: "Custom Reports",
 };
 
 function formatDate(date: string) {

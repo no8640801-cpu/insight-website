@@ -10,16 +10,22 @@ import {
   BrainCircuit,
   Check,
   CheckCircle2,
+  ClipboardCheck,
   FileSpreadsheet,
+  FileStack,
   FileText,
   Globe2,
+  Landmark,
   Loader2,
+  Lock,
   Lightbulb,
   MessageSquareText,
+  MessagesSquare,
   Paperclip,
   ShieldCheck,
   Sparkles,
   Trash2,
+  UserCheck,
   Users,
   X,
 } from "lucide-react";
@@ -57,7 +63,44 @@ const analysisOptions = [
     description: "Get actionable recommendations for your business.",
     icon: Lightbulb,
   },
+  {
+    id: "financial_statements",
+    proOnly: true,
+    title: "Financial Statements",
+    description: "Review financial statements, profitability and financial health.",
+    icon: Landmark,
+  },
+  {
+    id: "human_analyst",
+    proOnly: true,
+    title: "Human Analyst",
+    description: "Work with a human analyst who reviews your data and findings.",
+    icon: UserCheck,
+  },
+  {
+    id: "report_review",
+    title: "Report Review",
+    description: "Have your report reviewed for accuracy, quality and clarity.",
+    icon: ClipboardCheck,
+  },
+  {
+    id: "consultation",
+    proOnly: true,
+    title: "Consultation",
+    description: "Get expert guidance and answers to your business questions.",
+    icon: MessagesSquare,
+  },
+  {
+    id: "custom_reports",
+    title: "Custom Reports",
+    description: "Receive reports tailored to your specific needs and format.",
+    icon: FileStack,
+  },
 ];
+
+const PRO_ONLY_ANALYSES = analysisOptions
+  .filter((option) => "proOnly" in option && option.proOnly)
+  .map((option) => option.id);
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
@@ -109,6 +152,8 @@ export default function NewAnalysisPage() {
   }, []);
 
   function toggleAnalysis(id: string) {
+    if (PRO_ONLY_ANALYSES.includes(id) && plan !== "pro") return;
+
     setSelectedAnalyses((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
@@ -194,6 +239,14 @@ export default function NewAnalysisPage() {
 
     if (selectedAnalyses.length === 0) {
       setError("Please select at least one analysis type.");
+      return;
+    }
+
+    if (
+      plan !== "pro" &&
+      selectedAnalyses.some((id) => PRO_ONLY_ANALYSES.includes(id))
+    ) {
+      setError("Some selected analysis types are available on the Pro plan only.");
       return;
     }
 
@@ -347,20 +400,31 @@ export default function NewAnalysisPage() {
             {analysisOptions.map((option) => {
               const Icon = option.icon;
               const selected = selectedAnalyses.includes(option.id);
+              const locked =
+                "proOnly" in option && option.proOnly && plan !== "pro";
 
               return (
                 <button
                   type="button"
                   key={option.id}
-                  className={`analysis-option ${selected ? "selected" : ""}`}
+                  className={`analysis-option ${selected ? "selected" : ""} ${locked ? "locked" : ""}`}
                   onClick={() => toggleAnalysis(option.id)}
+                  disabled={locked}
+                  aria-disabled={locked}
                 >
                   <span className="analysis-option-icon">
                     <Icon size={21} />
                   </span>
 
                   <span className="analysis-option-copy">
-                    <strong>{option.title}</strong>
+                    <strong>
+                      {option.title}
+                      {"proOnly" in option && option.proOnly && (
+                        <em className="analysis-pro-badge">
+                          <Lock size={10} /> Pro
+                        </em>
+                      )}
+                    </strong>
                     <small>{option.description}</small>
                   </span>
 

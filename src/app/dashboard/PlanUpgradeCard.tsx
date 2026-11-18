@@ -1,17 +1,12 @@
-
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Crown,
   CheckCircle2,
   Clock,
   Sparkles,
-  Loader2,
-  AlertCircle,
 } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   currentPlan: string;
@@ -22,59 +17,9 @@ export default function PlanUpgradeCard({
   currentPlan,
   hasPendingRequest,
 }: Props) {
-  const supabase = createClient();
   const router = useRouter();
 
-  const [pending, setPending] = useState(hasPendingRequest);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
   const isPro = currentPlan === "pro";
-
-  async function handleUpgradeRequest() {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      setError("Your session has expired. Please sign in again.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: insertError } = await supabase
-      .from("plan_upgrade_requests")
-      .insert({
-        user_id: user.id,
-        status: "pending",
-      });
-
-    if (insertError) {
-      if (insertError.code === "23505") {
-        setPending(true);
-        setError("");
-        setSuccess("You already have a pending upgrade request.");
-      } else {
-        setError(insertError.message);
-      }
-
-      setLoading(false);
-      return;
-    }
-
-    setPending(true);
-    setSuccess(
-      "Your Pro upgrade request has been submitted successfully."
-    );
-    setLoading(false);
-    router.refresh();
-  }
 
   return (
     <section className="plan-upgrade-card">
@@ -127,51 +72,25 @@ export default function PlanUpgradeCard({
           <CheckCircle2 size={17} />
           You are already on the Pro plan.
         </div>
-      ) : pending ? (
-        <div className="plan-state-message pending-message">
-          <Clock size={17} />
-          Your Pro upgrade request is pending admin approval.
-        </div>
       ) : (
-        <button
-          type="button"
-          className="plan-upgrade-button"
-          onClick={handleUpgradeRequest}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <Loader2 size={17} className="plan-spinner" />
-              Submitting Request...
-            </>
-          ) : (
-            <>
-              <Crown size={17} />
-              Request Pro Upgrade
-            </>
+        <>
+          {hasPendingRequest && (
+            <div className="plan-state-message pending-message">
+              <Clock size={17} />
+              You have an earlier upgrade request waiting for admin approval.
+              You can also upgrade instantly by paying online.
+            </div>
           )}
-        </button>
-      )}
 
-      {success && (
-        <div className="plan-feedback success">
-          <CheckCircle2 size={15} />
-          {success}
-        </div>
-      )}
-
-      {error && (
-        <div className="plan-feedback error">
-          <AlertCircle size={15} />
-          {error}
-        </div>
-      )}
-
-      {!isPro && (
-        <p className="plan-upgrade-note">
-          You can continue using your Standard plan while your request
-          is being reviewed.
-        </p>
+          <button
+            type="button"
+            className="plan-upgrade-button"
+            onClick={() => router.push("/upgrade")}
+          >
+            <Crown size={17} />
+            Upgrade to Pro
+          </button>
+        </>
       )}
     </section>
   );
