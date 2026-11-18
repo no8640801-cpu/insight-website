@@ -77,17 +77,20 @@ export async function POST(request: Request) {
   // Optional: if Basic Auth is enabled on the n8n Chat Trigger
   const user_ = process.env.N8N_CHATBOT_USER?.trim();
   const pass_ = process.env.N8N_CHATBOT_PASSWORD?.trim();
-  const authHeader =
-    user_ && pass_
-      ? {
-          Authorization: `Basic ${Buffer.from(`${user_}:${pass_}`).toString("base64")}`,
-        }
-      : {};
+  const headers: HeadersInit = {
+  "Content-Type": "application/json",
+};
+
+if (user_ && pass_) {
+  headers.Authorization = `Basic ${Buffer.from(
+    `${user_}:${pass_}`
+  ).toString("base64")}`;
+}
 
   try {
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...authHeader },
+      headers,
       body: JSON.stringify({
         action: "sendMessage",
         sessionId: user.id,
