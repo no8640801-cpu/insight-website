@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -58,7 +57,14 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+const SPECIAL_LABELS: Record<string, string> = {
+  competitors_analysis_and_market_research:
+    "Competitors Analysis & Market Research",
+};
+
 function formatLabel(value: string) {
+  if (SPECIAL_LABELS[value]) return SPECIAL_LABELS[value];
+
   return value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());

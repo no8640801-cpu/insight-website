@@ -17,12 +17,10 @@ export const instant = false;
 type SearchParams = Promise<{ payment?: string }>;
 
 const proFeatures = [
-  "Financial Statements analysis",
-  "Human Analyst access",
-  "Expert Consultation",
-  "AI + Human report review",
-  "Custom reports tailored to your needs",
+  "Book one-hour meetings with finance, data and fraud experts",
   "Human expert review of your analysis",
+  "Direct consultation with a relevant expert",
+  "Review and confirmation before final PDF reports",
   "Priority processing",
 ];
 

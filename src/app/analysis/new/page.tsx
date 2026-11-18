@@ -12,21 +12,13 @@ import {
   CheckCircle2,
   ClipboardCheck,
   FileSpreadsheet,
-  FileStack,
   FileText,
   Globe2,
-  Landmark,
   Loader2,
-  Lock,
-  Lightbulb,
-  MessageSquareText,
-  MessagesSquare,
   Paperclip,
   ShieldCheck,
   Sparkles,
   Trash2,
-  UserCheck,
-  Users,
   X,
 } from "lucide-react";
 
@@ -34,73 +26,24 @@ import { createClient } from "@/lib/supabase/client";
 
 const analysisOptions = [
   {
-    id: "business_analysis",
-    title: "Business Analysis",
-    description: "Evaluate business performance, operations and growth.",
+    id: "data_analysis",
+    title: "Data Analysis",
+    description: "Analyze your business data to uncover patterns, trends and insights.",
     icon: BarChart3,
   },
   {
-    id: "market_research",
-    title: "Market Research",
-    description: "Understand your market, trends and opportunities.",
+    id: "competitors_analysis_and_market_research",
+    title: "Competitors Analysis & Market Research",
+    description: "Understand your market, competitors, strengths and weaknesses.",
     icon: Globe2,
   },
   {
-    id: "competitor_analysis",
-    title: "Competitor Analysis",
-    description: "Discover competitors, strengths and weaknesses.",
-    icon: Users,
-  },
-  {
-    id: "customer_sentiment_analysis",
-    title: "Customer Sentiment Analysis",
-    description: "Understand customer opinions and feedback.",
-    icon: MessageSquareText,
-  },
-  {
-    id: "ai_business_recommendations",
-    title: "AI Business Recommendations",
-    description: "Get actionable recommendations for your business.",
-    icon: Lightbulb,
-  },
-  {
-    id: "financial_statements",
-    proOnly: true,
-    title: "Financial Statements",
-    description: "Review financial statements, profitability and financial health.",
-    icon: Landmark,
-  },
-  {
-    id: "human_analyst",
-    proOnly: true,
-    title: "Human Analyst",
-    description: "Work with a human analyst who reviews your data and findings.",
-    icon: UserCheck,
-  },
-  {
-    id: "report_review",
-    title: "Report Review",
-    description: "Have your report reviewed for accuracy, quality and clarity.",
+    id: "action_plan",
+    title: "Action Plan",
+    description: "Get a clear, actionable plan to improve and grow your business.",
     icon: ClipboardCheck,
   },
-  {
-    id: "consultation",
-    proOnly: true,
-    title: "Consultation",
-    description: "Get expert guidance and answers to your business questions.",
-    icon: MessagesSquare,
-  },
-  {
-    id: "custom_reports",
-    title: "Custom Reports",
-    description: "Receive reports tailored to your specific needs and format.",
-    icon: FileStack,
-  },
 ];
-
-const PRO_ONLY_ANALYSES = analysisOptions
-  .filter((option) => "proOnly" in option && option.proOnly)
-  .map((option) => option.id);
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
@@ -152,8 +95,6 @@ export default function NewAnalysisPage() {
   }, []);
 
   function toggleAnalysis(id: string) {
-    if (PRO_ONLY_ANALYSES.includes(id) && plan !== "pro") return;
-
     setSelectedAnalyses((current) =>
       current.includes(id)
         ? current.filter((item) => item !== id)
@@ -239,14 +180,6 @@ export default function NewAnalysisPage() {
 
     if (selectedAnalyses.length === 0) {
       setError("Please select at least one analysis type.");
-      return;
-    }
-
-    if (
-      plan !== "pro" &&
-      selectedAnalyses.some((id) => PRO_ONLY_ANALYSES.includes(id))
-    ) {
-      setError("Some selected analysis types are available on the Pro plan only.");
       return;
     }
 
@@ -400,31 +333,20 @@ export default function NewAnalysisPage() {
             {analysisOptions.map((option) => {
               const Icon = option.icon;
               const selected = selectedAnalyses.includes(option.id);
-              const locked =
-                "proOnly" in option && option.proOnly && plan !== "pro";
 
               return (
                 <button
                   type="button"
                   key={option.id}
-                  className={`analysis-option ${selected ? "selected" : ""} ${locked ? "locked" : ""}`}
+                  className={`analysis-option ${selected ? "selected" : ""}`}
                   onClick={() => toggleAnalysis(option.id)}
-                  disabled={locked}
-                  aria-disabled={locked}
                 >
                   <span className="analysis-option-icon">
                     <Icon size={21} />
                   </span>
 
                   <span className="analysis-option-copy">
-                    <strong>
-                      {option.title}
-                      {"proOnly" in option && option.proOnly && (
-                        <em className="analysis-pro-badge">
-                          <Lock size={10} /> Pro
-                        </em>
-                      )}
-                    </strong>
+                    <strong>{option.title}</strong>
                     <small>{option.description}</small>
                   </span>
 

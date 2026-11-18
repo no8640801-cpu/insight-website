@@ -72,7 +72,14 @@ function formatDate(date: string) {
   }).format(new Date(date));
 }
 
+const SPECIAL_LABELS: Record<string, string> = {
+  competitors_analysis_and_market_research:
+    "Competitors Analysis & Market Research",
+};
+
 function formatAnalysisType(type: string) {
+  if (SPECIAL_LABELS[type]) return SPECIAL_LABELS[type];
+
   return type
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))

@@ -8,22 +8,9 @@ const MAX_FILES = 10;
 const SIGNED_URL_EXPIRY = 60 * 60;
 
 const ALLOWED_ANALYSES = [
-  "business_analysis",
-  "market_research",
-  "competitor_analysis",
-  "customer_sentiment_analysis",
-  "ai_business_recommendations",
-  "financial_statements",
-  "human_analyst",
-  "report_review",
-  "consultation",
-  "custom_reports",
-];
-
-const PRO_ONLY_ANALYSES = [
-  "financial_statements",
-  "human_analyst",
-  "consultation",
+  "data_analysis",
+  "competitors_analysis_and_market_research",
+  "action_plan",
 ];
 
 const ALLOWED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
@@ -128,19 +115,6 @@ export async function POST(request: Request) {
 
     const plan =
       accountPlan.plan === "pro" ? "pro" : "standard";
-
-    if (
-      plan !== "pro" &&
-      analysisTypes.some((type) => PRO_ONLY_ANALYSES.includes(type))
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Financial Statements, Human Analyst and Consultation are available on the Pro plan only.",
-        },
-        { status: 403 }
-      );
-    }
 
     // 5. Validate uploaded files
     const uploadedFiles = formData

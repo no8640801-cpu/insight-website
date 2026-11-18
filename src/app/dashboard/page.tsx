@@ -19,6 +19,7 @@ import {
   XCircle,
   Eye,
   MessageSquareQuote,
+  Users,
 } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
@@ -45,6 +46,9 @@ const analysisLabels: Record<string, string> = {
   report_review: "Report Review",
   consultation: "Consultation",
   custom_reports: "Custom Reports",
+  data_analysis: "Data Analysis",
+  competitors_analysis_and_market_research: "Competitors Analysis & Market Research",
+  action_plan: "Action Plan",
 };
 
 function formatDate(date: string) {
@@ -191,6 +195,17 @@ export default async function DashboardPage() {
           <MessageSquareQuote size={17} />
           Reviews
         </Link>
+
+        {/* Analysis Experts (Pro only) */}
+        {currentPlan === "pro" && (
+          <Link
+            href="/dashboard/experts"
+            className="sidebar-link"
+          >
+            <Users size={17} />
+            Analysis Experts
+          </Link>
+        )}
 
         <div className="sidebar-bottom">
           <Link
