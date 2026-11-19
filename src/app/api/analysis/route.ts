@@ -15,6 +15,11 @@ const ALLOWED_ANALYSES = [
 
 const ALLOWED_EXTENSIONS = [".csv", ".xls", ".xlsx"];
 
+type WebhookGroup = {
+  url: string;
+  analysisTypes: string[];
+};
+
 export async function POST(request: Request) {
   const supabase = await createClient();
 
@@ -31,24 +36,10 @@ export async function POST(request: Request) {
     );
   }
 
+  let webhookDispatchStarted = false;
+
   try {
-    // 2. Verify n8n configuration
-    const webhookUrl = process.env.N8N_WEBHOOK_URL?.trim();
-    const webhookSecret = process.env.N8N_WEBHOOK_SECRET?.trim();
-
-    console.log("INSIGHT Webhook Status:", {
-      hasUrl: Boolean(webhookUrl),
-      hasSecret: Boolean(webhookSecret),
-    });
-
-    if (!webhookUrl || !webhookSecret) {
-      return NextResponse.json(
-        { error: "The analysis service is not configured." },
-        { status: 500 }
-      );
-    }
-
-    // 3. Read submitted form
+    // 2. Read submitted form
     const formData = await request.formData();
 
     const instructions = String(
@@ -79,7 +70,9 @@ export async function POST(request: Request) {
     if (
       analysisTypes.length === 0 ||
       analysisTypes.some(
-        (type) => !ALLOWED_ANALYSES.includes(type)
+        (type) =>
+          typeof type !== "string" ||
+          !ALLOWED_ANALYSES.includes(type)
       )
     ) {
       return NextResponse.json(
@@ -97,6 +90,64 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // 3. Map each analysis type to its own n8n webhook
+    const webhookMap: Record<string, string | undefined> = {
+      data_analysis:
+        process.env.N8N_WEBHOOK_BUSINESS_ANALYSIS_URL?.trim(),
+
+      competitors_analysis_and_market_research:
+        process.env.N8N_WEBHOOK_MARKET_RESEARCH_URL?.trim(),
+
+      action_plan:
+        process.env.N8N_WEBHOOK_ACTION_PLAN_URL?.trim(),
+    };
+
+    const webhookSecret =
+      process.env.N8N_WEBHOOK_SECRET?.trim();
+
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { error: "The analysis service secret is not configured." },
+        { status: 500 }
+      );
+    }
+
+    // Group selected analysis types by webhook URL.
+    // Business Analysis and Action Plan currently share one URL,
+    // so they will be sent together to that webhook.
+    const webhookGroupsMap = new Map<string, string[]>();
+
+    for (const analysisType of analysisTypes) {
+      const webhookUrl = webhookMap[analysisType];
+
+      if (!webhookUrl) {
+        return NextResponse.json(
+          {
+            error: `The webhook for ${analysisType} is not configured.`,
+          },
+          { status: 500 }
+        );
+      }
+
+      const existingTypes =
+        webhookGroupsMap.get(webhookUrl) || [];
+
+      existingTypes.push(analysisType);
+      webhookGroupsMap.set(webhookUrl, existingTypes);
+    }
+
+    const webhookGroups: WebhookGroup[] = Array.from(
+      webhookGroupsMap.entries()
+    ).map(([url, types]) => ({
+      url,
+      analysisTypes: types,
+    }));
+
+    console.log("INSIGHT Analysis Routing:", {
+      selectedTypes: analysisTypes,
+      webhookGroupsCount: webhookGroups.length,
+    });
 
     // 4. Get actual account plan from Supabase
     const { data: accountPlan, error: planError } =
@@ -159,7 +210,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 6. Create analysis job
+    // 6. Create one analysis job for the customer's request
     const title = `Analysis - ${new Date()
       .toISOString()
       .slice(0, 10)}`;
@@ -265,30 +316,85 @@ export async function POST(request: Request) {
         })
       );
 
-      // 10. Send analysis request to n8n
-      const webhookResponse = await fetch(webhookUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-insight-secret": webhookSecret,
-        },
-        body: JSON.stringify({
-          event: "analysis.requested",
-          job_id: job.id,
-          user_id: user.id,
-          user_email: user.email,
-          plan,
-          analysis_types: analysisTypes,
-          instructions,
-          files: filesForN8n,
-        }),
-        cache: "no-store",
-        signal: AbortSignal.timeout(15000),
-      });
+      // 10. Send the request to the correct n8n webhook(s)
+      webhookDispatchStarted = true;
 
-      if (!webhookResponse.ok) {
-        throw new Error(
-          `The analysis service returned HTTP ${webhookResponse.status}.`
+      const webhookResults = await Promise.allSettled(
+        webhookGroups.map(async (group) => {
+          const response = await fetch(group.url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-insight-secret": webhookSecret,
+            },
+            body: JSON.stringify({
+              event: "analysis.requested",
+
+              // Shared job ID for all selected analysis types
+              job_id: job.id,
+              user_id: user.id,
+              user_email: user.email,
+              plan,
+
+              // Only the types assigned to this webhook
+              analysis_types: group.analysisTypes,
+
+              // Also provide a single type when only one is assigned
+              analysis_type:
+                group.analysisTypes.length === 1
+                  ? group.analysisTypes[0]
+                  : null,
+
+              instructions,
+              files: filesForN8n,
+            }),
+            cache: "no-store",
+            signal: AbortSignal.timeout(20000),
+          });
+
+          if (!response.ok) {
+            throw new Error(
+              `Webhook returned HTTP ${response.status} for: ${group.analysisTypes.join(", ")}`
+            );
+          }
+
+          return {
+            analysis_types: group.analysisTypes,
+            success: true,
+          };
+        })
+      );
+
+      const failedWebhooks = webhookResults
+        .filter(
+          (
+            result
+          ): result is PromiseRejectedResult =>
+            result.status === "rejected"
+        )
+        .map((result) =>
+          result.reason instanceof Error
+            ? result.reason.message
+            : "Unknown webhook error"
+        );
+
+      if (failedWebhooks.length > 0) {
+        console.error("Some analysis webhooks failed:", {
+          job_id: job.id,
+          errors: failedWebhooks,
+        });
+
+        // Keep the job and uploaded files for troubleshooting.
+        // Another webhook may already have accepted this job.
+        return NextResponse.json(
+          {
+            success: false,
+            partial_failure: true,
+            job_id: job.id,
+            error:
+              "Some analysis workflows could not be started. Your request has been saved for review.",
+          },
+          { status: 502 }
         );
       }
 
@@ -301,22 +407,26 @@ export async function POST(request: Request) {
           plan,
           status: "pending",
           files_count: fileRecords.length,
+          webhooks_count: webhookGroups.length,
         },
         { status: 202 }
       );
     } catch (processingError) {
-      // 12. Roll back if upload or webhook submission fails
-      if (storagePaths.length > 0) {
-        await supabase.storage
-          .from(BUCKET_NAME)
-          .remove(storagePaths);
-      }
+      // Roll back uploads and job only if webhook dispatch has not started.
+      // Once dispatch starts, another workflow may already have accepted the job.
+      if (!webhookDispatchStarted) {
+        if (storagePaths.length > 0) {
+          await supabase.storage
+            .from(BUCKET_NAME)
+            .remove(storagePaths);
+        }
 
-      await supabase
-        .from("analysis_jobs")
-        .delete()
-        .eq("id", job.id)
-        .eq("user_id", user.id);
+        await supabase
+          .from("analysis_jobs")
+          .delete()
+          .eq("id", job.id)
+          .eq("user_id", user.id);
+      }
 
       throw processingError;
     }
