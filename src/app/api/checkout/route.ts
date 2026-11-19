@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 // n8n workflow: WF_Payments_Stripe_Supabase_Secure
 const CHECKOUT_WEBHOOK_URL =
   process.env.N8N_CHECKOUT_WEBHOOK_URL?.trim() ||
-  "https://omardepi.app.n8n.cloud/webhook/create-checkout";
+  "https://depiproject.app.n8n.cloud/webhook/create-checkout";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
