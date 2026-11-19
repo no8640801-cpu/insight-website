@@ -65,7 +65,7 @@ const publicReviewAnalysisLabels: Record<string, string> = {
   report_review: "Report Review",
   consultation: "Consultation",
   custom_reports: "Custom Reports",
-  data_analysis: "Data Analysis",
+  data_analysis: "Business Analysis",
   competitors_analysis_and_market_research: "Competitors Analysis & Market Research",
   action_plan: "Action Plan",
 };

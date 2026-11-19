@@ -73,6 +73,7 @@ function formatDate(date: string) {
 }
 
 const SPECIAL_LABELS: Record<string, string> = {
+  data_analysis: "Business Analysis",
   competitors_analysis_and_market_research:
     "Competitors Analysis & Market Research",
 };

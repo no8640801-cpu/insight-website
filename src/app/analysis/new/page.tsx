@@ -27,7 +27,7 @@ import { createClient } from "@/lib/supabase/client";
 const analysisOptions = [
   {
     id: "data_analysis",
-    title: "Data Analysis",
+    title: "Business Analysis",
     description: "Analyze your business data to uncover patterns, trends and insights.",
     icon: BarChart3,
   },

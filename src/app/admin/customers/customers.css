@@ -1,0 +1,480 @@
+
+/* =========================================
+   INSIGHT - ADMIN CUSTOMER MANAGEMENT
+   Independent Luxury Styling
+========================================= */
+
+.customers-page {
+  min-height: 100vh;
+  padding: 55px 5%;
+  background: #11151b;
+  color: #f5f0e7;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.customers-page * {
+  box-sizing: border-box;
+}
+
+.customers-page .admin-container {
+  width: 100%;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+/* Header */
+
+.customers-page .upgrades-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 38px;
+}
+
+.customers-page .upgrades-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 28px;
+  padding: 0;
+  color: #a8a8a8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  transition: color .2s ease;
+}
+
+.customers-page .upgrades-back:hover {
+  color: #c6a66b;
+}
+
+.customers-page .admin-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 13px;
+  color: #c6a66b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.customers-page .upgrades-header h1 {
+  margin: 0 0 10px;
+  color: #f5f0e7;
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 600;
+}
+
+.customers-page .upgrades-header p {
+  margin: 0;
+  color: #a8a8a8;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.customers-page .upgrades-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 19px;
+  color: #c6a66b;
+  background: #202630;
+  border: 1px solid #45413a;
+  border-radius: 9px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.customers-page .upgrades-refresh:hover {
+  background: #30333a;
+  border-color: #c6a66b;
+}
+
+.customers-page .upgrades-refresh:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Summary Cards */
+
+.customers-page .customers-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 35px;
+}
+
+.customers-page .upgrades-summary {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 23px;
+  background: linear-gradient(145deg, #202630, #191f27);
+  border: 1px solid #343b46;
+  border-radius: 14px;
+  transition: border-color .2s ease, transform .2s ease;
+}
+
+.customers-page .upgrades-summary:hover {
+  border-color: #8b754f;
+  transform: translateY(-2px);
+}
+
+.customers-page .upgrades-summary-icon {
+  display: grid;
+  place-items: center;
+  width: 49px;
+  height: 49px;
+  flex-shrink: 0;
+  color: #c6a66b;
+  background: rgba(198, 166, 107, .13);
+  border: 1px solid rgba(198, 166, 107, .2);
+  border-radius: 12px;
+}
+
+.customers-page .upgrades-summary span {
+  display: block;
+  margin-bottom: 6px;
+  color: #a8a8a8;
+  font-size: 12px;
+}
+
+.customers-page .upgrades-summary strong {
+  display: block;
+  color: #f5f0e7;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Alerts */
+
+.customers-page .upgrades-alert {
+  margin-bottom: 20px;
+  padding: 15px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.customers-page .upgrades-alert.error {
+  color: #f0a0a0;
+  background: rgba(180, 65, 65, .12);
+  border: 1px solid rgba(220, 100, 100, .3);
+}
+
+.customers-page .upgrades-alert.success {
+  color: #9ed5ad;
+  background: rgba(70, 160, 100, .12);
+  border: 1px solid rgba(70, 160, 100, .3);
+}
+
+/* Main Customer Section */
+
+.customers-page .upgrades-section {
+  padding: 25px;
+  background: #191f27;
+  border: 1px solid #343b46;
+  border-radius: 16px;
+}
+
+/* Search and Filters */
+
+.customers-page .customers-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.customers-page .customers-search {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1 1 280px;
+  max-width: 450px;
+  padding: 0 15px;
+  color: #c6a66b;
+  background: #11151b;
+  border: 1px solid #343b46;
+  border-radius: 10px;
+}
+
+.customers-page .customers-search:focus-within {
+  border-color: #c6a66b;
+  box-shadow: 0 0 0 3px rgba(198, 166, 107, .08);
+}
+
+.customers-page .customers-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 0;
+  color: #f5f0e7;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13px;
+}
+
+.customers-page .customers-search input::placeholder {
+  color: #777e88;
+}
+
+.customers-page .customers-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.customers-page .customers-filters button {
+  padding: 9px 15px;
+  color: #a8a8a8;
+  background: #202630;
+  border: 1px solid #343b46;
+  border-radius: 30px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.customers-page .customers-filters button:hover {
+  color: #c6a66b;
+  border-color: #8b754f;
+}
+
+.customers-page .customers-filters button.active {
+  color: #c6a66b;
+  background: rgba(198, 166, 107, .12);
+  border-color: #c6a66b;
+}
+
+/* Customer Cards */
+
+.customers-page .upgrades-list {
+  display: grid;
+  gap: 13px;
+}
+
+.customers-page .customer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 22px;
+  background: #202630;
+  border: 1px solid #343b46;
+  border-radius: 13px;
+  transition: .2s ease;
+}
+
+.customers-page .customer-row:hover {
+  background: #252d38;
+  border-color: #756344;
+  transform: translateY(-1px);
+}
+
+.customers-page .customer-row-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  min-width: 0;
+}
+
+.customers-page .customer-row-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  color: #c6a66b;
+  background: rgba(198, 166, 107, .12);
+  border: 1px solid rgba(198, 166, 107, .2);
+  border-radius: 12px;
+}
+
+.customers-page .customer-row-info {
+  min-width: 0;
+}
+
+.customers-page .customer-row-info h3 {
+  margin: 0 0 9px;
+  color: #f5f0e7;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.customers-page .customer-row-info span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 7px;
+  color: #a8a8a8;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.customers-page .customer-row-info span svg {
+  flex-shrink: 0;
+  color: #c6a66b;
+}
+
+/* Plan Badge */
+
+.customers-page .customer-row-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.customers-page .customer-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  color: #b7bbc2;
+  background: #303741;
+  border: 1px solid #454c57;
+  border-radius: 30px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.customers-page .customer-plan.pro {
+  color: #d9bd83;
+  background: rgba(198, 166, 107, .13);
+  border-color: rgba(198, 166, 107, .4);
+}
+
+/* Cancel Pro Button */
+
+.customers-page .customer-cancel-pro {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 15px;
+  color: #e99a9a;
+  background: rgba(190, 75, 75, .08);
+  border: 1px solid rgba(232, 138, 138, .4);
+  border-radius: 9px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.customers-page .customer-cancel-pro:hover:not(:disabled) {
+  color: #fff;
+  background: #a94444;
+  border-color: #a94444;
+}
+
+.customers-page .customer-cancel-pro:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Empty and Loading States */
+
+.customers-page .upgrades-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 35px 20px;
+  color: #a8a8a8;
+  text-align: center;
+  background: #202630;
+  border: 1px dashed #454c57;
+  border-radius: 13px;
+}
+
+.customers-page .upgrades-empty > svg {
+  margin-bottom: 14px;
+  color: #c6a66b;
+}
+
+.customers-page .upgrades-empty h3 {
+  margin: 0 0 8px;
+  color: #f5f0e7;
+  font-size: 17px;
+}
+
+.customers-page .upgrades-empty p {
+  margin: 0;
+  color: #a8a8a8;
+  font-size: 13px;
+}
+
+/* Responsive */
+
+@media (max-width: 750px) {
+  .customers-page {
+    padding: 35px 20px;
+  }
+
+  .customers-page .upgrades-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .customers-page .customers-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .customers-page .upgrades-section {
+    padding: 17px;
+  }
+
+  .customers-page .customers-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .customers-page .customers-search {
+    max-width: none;
+  }
+
+  .customers-page .customer-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .customers-page .customer-row-actions {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .customers-page {
+    padding: 28px 14px;
+  }
+
+  .customers-page .customers-filters {
+    width: 100%;
+  }
+
+  .customers-page .customers-filters button {
+    flex: 1;
+    padding: 9px 8px;
+  }
+
+  .customers-page .customer-row {
+    padding: 16px;
+  }
+}

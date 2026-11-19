@@ -3591,3 +3591,229 @@ button {
     height: calc(100vh - 140px);
   }
 }
+
+/* ===== Admin Customer Management ===== */
+.customers-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.customers-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.customers-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 260px;
+  max-width: 420px;
+  color: #a8a8a8;
+  background: #202630;
+  border: 1px solid #343b46;
+  border-radius: 10px;
+  padding: 0 14px;
+}
+
+.customers-search input {
+  flex: 1;
+  min-width: 0;
+  color: #f5f0e7;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  font-size: 13px;
+  padding: 12px 0;
+}
+
+.customers-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.customers-filters button {
+  color: #a8a8a8;
+  background: #202630;
+  border: 1px solid #343b46;
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.customers-filters button.active {
+  color: #c6a66b;
+  border-color: #c6a66b;
+}
+
+.customer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: #202630;
+  border: 1px solid #343b46;
+  border-radius: 13px;
+  padding: 20px 22px;
+}
+
+.customer-row-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.customer-row-icon {
+  width: 43px;
+  height: 43px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #c6a66b;
+  background: #30333a;
+  border-radius: 10px;
+}
+
+.customer-row-info h3 {
+  color: #f5f0e7;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 6px;
+}
+
+.customer-row-info span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a8a8a8;
+  font-size: 11px;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+}
+
+.customer-row-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.customer-plan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: capitalize;
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: #a8a8a8;
+  background: #30333a;
+}
+
+.customer-plan.pro {
+  color: #c6a66b;
+  background: rgba(198, 166, 107, 0.14);
+}
+
+.customer-cancel-pro {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #e88a8a;
+  background: transparent;
+  border: 1px solid rgba(232, 138, 138, 0.45);
+  border-radius: 9px;
+  font-size: 12px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.customer-cancel-pro:hover:not(:disabled) {
+  background: rgba(232, 138, 138, 0.1);
+}
+
+.customer-cancel-pro:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .customers-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .customer-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .customer-row-actions {
+    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+/* Upgrade payment success screen */
+
+.upgrade-success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 32px 12px;
+}
+
+.upgrade-success-icon {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  color: #c6a66b;
+  background: rgba(198, 166, 107, 0.12);
+  border: 1px solid rgba(198, 166, 107, 0.35);
+}
+
+.upgrade-success-screen h1 {
+  margin: 12px 0;
+}
+
+.upgrade-success-screen > p {
+  max-width: 480px;
+  line-height: 1.8;
+  color: #b8b8b8;
+}
+
+.upgrade-success-screen .upgrade-summary {
+  width: 100%;
+  text-align: left;
+  margin: 28px 0;
+}
+
+.payment-status-success {
+  color: #70c99a !important;
+}
+
+.upgrade-success-button {
+  width: 100%;
+  max-width: 420px;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.upgrade-processing-note {
+  margin-top: 18px;
+  font-size: 13px;
+  color: #aaa;
+}

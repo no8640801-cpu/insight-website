@@ -16,6 +16,13 @@ import { createClient } from "@/lib/supabase/server";
 
 export const instant = false;
 
+const analysisLabels: Record<string, string> = {
+  data_analysis: "Business Analysis",
+  competitors_analysis_and_market_research:
+    "Competitors Analysis & Market Research",
+  action_plan: "Action Plan",
+};
+
 export default async function AdminDashboardPage() {
 
   const supabase = await createClient();
@@ -245,7 +252,9 @@ export default async function AdminDashboardPage() {
 
                       <td>
                         <div className="admin-analysis-types">
-                          {analysis.analysis_types?.join(", ") || "—"}
+                          {analysis.analysis_types
+                            ?.map((type: string) => analysisLabels[type] || type.replaceAll("_", " "))
+                            .join(", ") || "—"}
                         </div>
                       </td>
 
@@ -284,9 +293,9 @@ export default async function AdminDashboardPage() {
                 View customer accounts and manage their subscription plans.
               </p>
 
-              <span className="admin-coming-soon">
-                Coming in next step
-              </span>
+              <a href="/admin/customers" className="admin-quick-link">
+                Manage Customers →
+              </a>
             </div>
 
             

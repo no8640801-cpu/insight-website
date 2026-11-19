@@ -1,15 +1,16 @@
-import { NextResponse } from "next/server";
+
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
-// n8n workflow: WF_Payments_Stripe_Supabase_Secure (Create Checkout webhook)
+// n8n workflow: WF_Payments_Stripe_Supabase_Secure
 const CHECKOUT_WEBHOOK_URL =
   process.env.N8N_CHECKOUT_WEBHOOK_URL?.trim() ||
   "https://omardepi.app.n8n.cloud/webhook/create-checkout";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
-  // 1. The user always comes from the server session, never from the browser body
+  // Get the signed-in user from the server session
   const {
     data: { user },
     error: authError,
@@ -22,7 +23,7 @@ export async function POST() {
     );
   }
 
-  // 2. Do not charge accounts that are already Pro
+  // Do not charge accounts that are already Pro
   const { data: accountPlan } = await supabase
     .from("account_plans")
     .select("plan")
@@ -37,8 +38,11 @@ export async function POST() {
   }
 
   try {
-    // 3. Ask n8n to create the Stripe Checkout session
     const webhookSecret = process.env.N8N_WEBHOOK_SECRET?.trim();
+
+    // These URLs bring the customer back to the upgrade page
+    const successUrl = new URL("/upgrade?payment=success", request.url).toString();
+    const cancelUrl = new URL("/upgrade?payment=canceled", request.url).toString();
 
     const response = await fetch(CHECKOUT_WEBHOOK_URL, {
       method: "POST",
@@ -49,6 +53,8 @@ export async function POST() {
       body: JSON.stringify({
         user_id: user.id,
         user_email: user.email,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(20000),
@@ -61,7 +67,6 @@ export async function POST() {
     const data = await response.json();
     const checkoutUrl: unknown = data?.checkout_url;
 
-    // 4. Only ever redirect the user to a real Stripe page
     if (
       typeof checkoutUrl !== "string" ||
       !checkoutUrl.startsWith("https://checkout.stripe.com/")
@@ -74,7 +79,10 @@ export async function POST() {
     console.error("Checkout creation error:", error);
 
     return NextResponse.json(
-      { error: "We could not start the payment. Please try again in a moment." },
+      {
+        error:
+          "We could not start the payment. Please try again in a moment.",
+      },
       { status: 502 }
     );
   }
